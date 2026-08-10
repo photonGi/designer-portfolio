@@ -10,6 +10,7 @@ import {
   useSpring,
 } from "motion/react";
 import { useEffect, useState } from "react";
+import BananaPeel from "@/components/BananaPeel";
 import ReactiveImage from "@/components/ReactiveImage";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -105,6 +106,10 @@ export default function About() {
             cursorY.set(event.clientY - rect.top + 16);
             if (!hovered) setHovered(true);
           }}
+          onClick={() => {
+            if (canHover) return;
+            setHovered((value) => !value);
+          }}
         >
           <Image
             src="/images/chopa.png"
@@ -113,6 +118,8 @@ export default function About() {
             sizes="(max-width: 768px) 50vw, 35vw"
             className="object-cover"
           />
+
+          <BananaPeel open={hovered} reduceMotion={reduceMotion} />
 
           <AnimatePresence>
             {hovered && (
