@@ -73,6 +73,7 @@ export default function About() {
             fill
             sizes="(max-width: 768px) 50vw, 35vw"
             className="object-cover"
+            title="Chopa"
           />
         </motion.div>
 
