@@ -2,7 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useReducedMotion } from "motion/react";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+} from "motion/react";
+import { useEffect, useState } from "react";
 import ReactiveImage from "@/components/ReactiveImage";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -29,6 +36,21 @@ export function ActionButtons({ className = "" }: { className?: string }) {
 
 export default function About() {
   const reduceMotion = useReducedMotion();
+  const [hovered, setHovered] = useState(false);
+  const [canHover, setCanHover] = useState(false);
+
+  const cursorX = useMotionValue(0);
+  const cursorY = useMotionValue(0);
+  const springX = useSpring(cursorX, { stiffness: 380, damping: 28, mass: 0.4 });
+  const springY = useSpring(cursorY, { stiffness: 380, damping: 28, mass: 0.4 });
+
+  useEffect(() => {
+    const media = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const sync = () => setCanHover(media.matches);
+    sync();
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, []);
 
   return (
     <section
@@ -61,11 +83,28 @@ export default function About() {
 
       <div className="flex w-full gap-2 md:w-[min(848px,58%)]">
         <motion.div
-          className="relative min-h-[280px] flex-1 overflow-hidden rounded bg-border md:min-h-[432px]"
+          className={`relative min-h-[280px] flex-1 overflow-hidden rounded bg-border md:min-h-[432px] ${
+            canHover ? "cursor-none" : ""
+          }`}
           initial={reduceMotion ? false : { opacity: 0, y: 36 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.25 }}
           transition={{ duration: 0.85, ease, delay: 0.08 }}
+          onMouseEnter={() => {
+            if (!canHover) return;
+            setHovered(true);
+          }}
+          onMouseLeave={() => {
+            if (!canHover) return;
+            setHovered(false);
+          }}
+          onMouseMove={(event) => {
+            if (!canHover) return;
+            const rect = event.currentTarget.getBoundingClientRect();
+            cursorX.set(event.clientX - rect.left + 16);
+            cursorY.set(event.clientY - rect.top + 16);
+            if (!hovered) setHovered(true);
+          }}
         >
           <Image
             src="/images/chopa.png"
@@ -73,8 +112,24 @@ export default function About() {
             fill
             sizes="(max-width: 768px) 50vw, 35vw"
             className="object-cover"
-            title="Chopa"
           />
+
+          <AnimatePresence>
+            {hovered && (
+              <motion.div
+                className="pointer-events-none absolute left-0 top-0 z-10 select-none"
+                style={{ x: springX, y: springY }}
+                initial={{ opacity: 0, scale: 0.85 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ type: "spring", stiffness: 420, damping: 24 }}
+              >
+                <div className="rounded-[5px] bg-accent px-3.5 py-1.5 text-sm font-bold uppercase tracking-[0.14em] text-[#0a0a0a] shadow-[0_8px_24px_rgba(0,226,0,0.28)]">
+                  Chopa
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
 
         <motion.div
