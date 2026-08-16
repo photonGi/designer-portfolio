@@ -11,21 +11,21 @@ const columns = [
   {
     title: "Case Studies",
     links: [
-      { label: "Well Me", href: "#work" },
-      { label: "Panopto", href: "#work" },
-      { label: "Maple HR", href: "#work" },
+      { label: "Options Depth", href: "/work/options-depth" },
+      { label: "Prosper Architecture", href: "/work/prosper-architecture" },
+      { label: "Dot Portal", href: "/work/dot-portal" },
     ],
   },
   {
     title: "Projects",
     links: [
-      { label: "Options Depth", href: "#" },
-      { label: "Maria b", href: "#" },
-      { label: "NMDC", href: "#" },
-      { label: "Nishat", href: "#" },
-      { label: "Booosted", href: "#" },
-      { label: "Dot Portal", href: "#" },
-      { label: "View all", href: "#" },
+      { label: "Options Depth", href: "/work/options-depth" },
+      { label: "Maria b", href: "/work" },
+      { label: "NMDC", href: "/work" },
+      { label: "Nishat", href: "/work" },
+      { label: "Booosted", href: "/work" },
+      { label: "Dot Portal", href: "/work/dot-portal" },
+      { label: "View all", href: "/work" },
     ],
   },
   {

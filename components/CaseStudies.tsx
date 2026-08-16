@@ -18,28 +18,25 @@ type CaseStudy = {
 
 const studies: CaseStudy[] = [
   {
-    name: "Wellme",
-    type: "Wellness AI Coach",
-    year: "2026",
-    href: "#",
-    image: "/images/banner.png",
-    comingSoon: true,
-  },
-  {
-    name: "Panopto",
-    type: "AI Agent Hub",
+    name: "Options Depth",
+    type: "Trading",
     year: "2025",
-    href: "#",
-    image: "/images/project.png",
-    comingSoon: true,
+    href: "/work/options-depth",
+    image: "/images/case-studies/case-study1.png",
   },
   {
-    name: "Maple HR",
-    type: "HRMS",
-    year: "2024",
-    href: "#",
-    image: "/images/project1.png",
-    comingSoon: true,
+    name: "Prosper Architecture",
+    type: "Architecture",
+    year: "2026",
+    href: "/work/prosper-architecture",
+    image: "/images/case-studies/case-study2.png",
+  },
+  {
+    name: "Dot Portal",
+    type: "Healthcare & Wellness",
+    year: "2025",
+    href: "/work/dot-portal",
+    image: "/images/case-studies/case-study3.png",
   },
 ];
 

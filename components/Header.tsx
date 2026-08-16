@@ -3,25 +3,20 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import ContactMenu from "@/components/ContactMenu";
 import ThemeToggle from "@/components/ThemeToggle";
 
 const links = [
-  { href: "#work", label: "Work" },
-  { href: "#about", label: "About" },
-  { href: "#contact", label: "Contact" },
+  { href: "/work", label: "Work", match: "work" as const },
+  { href: "/about", label: "About", match: "about" as const },
 ] as const;
 
 export default function Header() {
   const pathname = usePathname();
-  const [activeHash, setActiveHash] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const syncHash = () => setActiveHash(window.location.hash);
-    syncHash();
-    window.addEventListener("hashchange", syncHash);
-    return () => window.removeEventListener("hashchange", syncHash);
-  }, [pathname]);
+  const [contactOpen, setContactOpen] = useState(false);
+  const onWork = pathname === "/work" || pathname.startsWith("/work/");
+  const onAbout = pathname === "/about" || pathname.startsWith("/about/");
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
@@ -30,15 +25,28 @@ export default function Header() {
     };
   }, [menuOpen]);
 
+  useEffect(() => {
+    setContactOpen(false);
+  }, [pathname]);
+
+  const isActive = (link: (typeof links)[number]) => {
+    if (link.match === "work") return onWork;
+    if (link.match === "about") return onAbout;
+    return false;
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-sm">
       <div className="flex items-center justify-between px-4 py-2">
         <Link
           href="/"
           className="flex items-baseline gap-2 md:gap-3"
-          onClick={() => setMenuOpen(false)}
+          onClick={() => {
+            setMenuOpen(false);
+            setContactOpen(false);
+          }}
         >
-          <span className="text-base font-medium text-foreground whitespace-nowrap">
+          <span className="whitespace-nowrap text-base font-medium text-foreground">
             Syed Saqib Abbas
           </span>
           <span className="hidden text-sm font-medium text-muted sm:inline">
@@ -52,27 +60,31 @@ export default function Header() {
             aria-label="Primary"
           >
             {links.map((link) => {
-              const isActive = activeHash === link.href;
+              const active = isActive(link);
               return (
                 <Link
                   key={link.href}
                   href={link.href}
+                  aria-current={active ? "page" : undefined}
+                  onClick={() => setContactOpen(false)}
                   className="group flex items-center gap-2 text-sm font-medium text-muted transition-colors duration-200 hover:text-foreground"
                 >
                   <span
                     className={`size-1.5 shrink-0 rounded-[1px] transition-colors duration-200 ${
-                      isActive
-                        ? "bg-accent"
+                      active
+                        ? "bg-foreground"
                         : "bg-transparent group-hover:bg-accent"
                     }`}
                     aria-hidden
                   />
-                  <span className={isActive ? "text-foreground" : undefined}>
+                  <span className={active ? "text-foreground" : undefined}>
                     {link.label}
                   </span>
                 </Link>
               );
             })}
+
+            <ContactMenu open={contactOpen} onOpenChange={setContactOpen} />
           </nav>
 
           <ThemeToggle />
@@ -83,7 +95,10 @@ export default function Header() {
             aria-expanded={menuOpen}
             aria-controls="mobile-nav"
             aria-label={menuOpen ? "Close menu" : "Open menu"}
-            onClick={() => setMenuOpen((open) => !open)}
+            onClick={() => {
+              setMenuOpen((open) => !open);
+              setContactOpen(false);
+            }}
           >
             <span className="sr-only">{menuOpen ? "Close" : "Menu"}</span>
             <span
@@ -111,26 +126,35 @@ export default function Header() {
           aria-label="Mobile primary"
         >
           {links.map((link) => {
-            const isActive = activeHash === link.href;
+            const active = isActive(link);
             return (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
+                aria-current={active ? "page" : undefined}
                 className="flex items-center gap-3 py-3 text-base font-medium text-muted transition-colors duration-200 hover:text-foreground"
               >
                 <span
                   className={`size-1.5 shrink-0 rounded-[1px] ${
-                    isActive ? "bg-accent" : "bg-transparent"
+                    active ? "bg-foreground" : "bg-transparent"
                   }`}
                   aria-hidden
                 />
-                <span className={isActive ? "text-foreground" : undefined}>
+                <span className={active ? "text-foreground" : undefined}>
                   {link.label}
                 </span>
               </Link>
             );
           })}
+
+          <div className="border-t border-border pt-3">
+            <ContactMenu
+              open={contactOpen}
+              onOpenChange={setContactOpen}
+              className="w-full [&>button]:w-full [&>button]:justify-start [&>button]:py-3 [&>button]:text-base [&>div]:left-0 [&>div]:right-auto [&>div]:w-full"
+            />
+          </div>
         </nav>
       </div>
     </header>

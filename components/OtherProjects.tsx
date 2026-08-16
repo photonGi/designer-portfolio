@@ -19,8 +19,9 @@ const columns: Project[][] = [
     {
       name: "Options Depth",
       tag: "Trading",
-      image: "/images/project.png",
+      image: "/images/case-studies/case-study1.png",
       aspect: "346 / 260",
+      href: "/work/options-depth",
     },
     {
       name: "OSPI",
@@ -91,14 +92,16 @@ const columns: Project[][] = [
     {
       name: "Dot Portal",
       tag: "Healthcare & Wellness",
-      image: "/images/project11.png",
+      image: "/images/case-studies/case-study3.png",
       aspect: "346 / 224",
+      href: "/work/dot-portal",
     },
     {
       name: "Prosper Arch",
       tag: "Architecture",
-      image: "/images/project12.png",
+      image: "/images/case-studies/case-study2.png",
       aspect: "346 / 259",
+      href: "/work/prosper-architecture",
     },
   ],
 ];

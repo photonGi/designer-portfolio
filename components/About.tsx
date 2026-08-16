@@ -10,7 +10,6 @@ import {
   useSpring,
 } from "motion/react";
 import { useEffect, useState } from "react";
-import BananaPeel from "@/components/BananaPeel";
 import ReactiveImage from "@/components/ReactiveImage";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -26,7 +25,7 @@ export function ActionButtons({ className = "" }: { className?: string }) {
         Book a call
       </a>
       <Link
-        href="#about"
+        href="/about"
         className="inline-flex items-center rounded-[5px] bg-[#241f1a] px-[12.8px] py-2 text-sm font-medium text-foreground transition-colors duration-300 hover:bg-border"
       >
         About
@@ -119,8 +118,6 @@ export default function About() {
             className="object-cover"
           />
 
-          <BananaPeel open={hovered} reduceMotion={reduceMotion} />
-
           <AnimatePresence>
             {hovered && (
               <motion.div
@@ -131,13 +128,8 @@ export default function About() {
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ type: "spring", stiffness: 420, damping: 24 }}
               >
-                <div className="flex flex-col items-start gap-1">
-                  <div className="rounded-[5px] bg-accent px-3.5 py-1.5 text-sm font-bold uppercase tracking-[0.14em] text-[#0a0a0a] shadow-[0_8px_24px_rgba(0,226,0,0.28)]">
-                    Chopa
-                  </div>
-                  <div className="rounded-[4px] bg-[#f5d547] px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#0a0a0a] shadow-[0_6px_16px_rgba(245,213,71,0.28)]">
-                    Keela eater
-                  </div>
+                <div className="rounded-[5px] bg-accent px-3.5 py-1.5 text-sm font-bold uppercase tracking-[0.14em] text-[#0a0a0a] shadow-[0_8px_24px_rgba(0,226,0,0.28)]">
+                  Chopa
                 </div>
               </motion.div>
             )}
