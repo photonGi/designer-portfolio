@@ -4,44 +4,57 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { ActionButtons } from "@/components/About";
+import type { WorkItem } from "@/lib/work";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-const columns = [
-  {
-    title: "Case Studies",
-    links: [
-      { label: "Options Depth", href: "/work/options-depth" },
-      { label: "Prosper Architecture", href: "/work/prosper-architecture" },
-      { label: "Dot Portal", href: "/work/dot-portal" },
-    ],
-  },
-  {
-    title: "Projects",
-    links: [
-      { label: "Options Depth", href: "/work/options-depth" },
-      { label: "Maria b", href: "/work" },
-      { label: "NMDC", href: "/work" },
-      { label: "Nishat", href: "/work" },
-      { label: "Booosted", href: "/work" },
-      { label: "Dot Portal", href: "/work/dot-portal" },
-      { label: "View all", href: "/work" },
-    ],
-  },
-  {
-    title: "Elsewhere",
-    links: [
-      { label: "LinkedIn", href: "#" },
-      { label: "Pinterest", href: "#" },
-      { label: "Instagram", href: "#" },
-      { label: "Email", href: "mailto:saqibabbas052@gmail.com" },
-      { label: "Resume", href: "#" },
-    ],
-  },
+const elsewhere = [
+  { label: "LinkedIn", href: "#" },
+  { label: "Pinterest", href: "#" },
+  { label: "Instagram", href: "#" },
+  { label: "Email", href: "mailto:saqibabbas052@gmail.com" },
+  { label: "Resume", href: "#" },
 ] as const;
 
-export default function Footer() {
+export default function Footer({ workItems = [] }: { workItems?: WorkItem[] }) {
   const reduceMotion = useReducedMotion();
+
+  const caseStudyLinks = workItems
+    .filter((item) => item.category === "case-study")
+    .slice(0, 6)
+    .map((item) => ({
+      label: item.name,
+      href: item.href || `/work/${item.id}`,
+    }));
+
+  const projectLinks = [
+    ...workItems
+      .filter((item) => item.category === "project")
+      .slice(0, 5)
+      .map((item) => ({
+        label: item.name,
+        href: item.href && item.href !== "#" ? item.href : "/work",
+      })),
+    { label: "View all", href: "/work" },
+  ];
+
+  const columns = [
+    {
+      title: "Case Studies",
+      links:
+        caseStudyLinks.length > 0
+          ? caseStudyLinks
+          : [{ label: "View all", href: "/work" }],
+    },
+    {
+      title: "Projects",
+      links: projectLinks,
+    },
+    {
+      title: "Elsewhere",
+      links: [...elsewhere],
+    },
+  ];
 
   return (
     <footer id="contact" className="scroll-mt-16 w-full px-4 pb-10 pt-16 md:pt-24">
@@ -60,7 +73,7 @@ export default function Footer() {
             </h3>
             <ul className="mt-2 flex flex-col">
               {column.links.map((link) => (
-                <li key={link.label}>
+                <li key={`${column.title}-${link.label}`}>
                   <Link
                     href={link.href}
                     className="inline-flex h-9 items-center text-base text-foreground transition-colors duration-300 hover:text-muted"

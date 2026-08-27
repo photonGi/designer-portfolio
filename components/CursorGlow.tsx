@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const VERT = `#version 300 es
@@ -142,15 +143,17 @@ function createProgram(
 }
 
 export default function CursorGlow() {
+  const pathname = usePathname();
   const [enabled, setEnabled] = useState(false);
+  const isAdmin = pathname?.startsWith("/admin") ?? false;
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const sync = () => setEnabled(!media.matches);
+    const sync = () => setEnabled(!media.matches && !isAdmin);
     sync();
     media.addEventListener("change", sync);
     return () => media.removeEventListener("change", sync);
-  }, []);
+  }, [isAdmin]);
 
   useEffect(() => {
     if (!enabled) return;

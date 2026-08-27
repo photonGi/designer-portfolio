@@ -4,16 +4,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import Footer from "@/components/Footer";
-import {
-  getNextCaseStudy,
-  type CaseStudy,
-} from "@/lib/caseStudies";
+import type { CaseStudy } from "@/lib/caseStudies";
+import type { WorkItem } from "@/lib/work";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-export default function CaseStudyView({ study }: { study: CaseStudy }) {
+export default function CaseStudyView({
+  study,
+  next,
+  workItems = [],
+}: {
+  study: CaseStudy;
+  next: CaseStudy | null;
+  workItems?: WorkItem[];
+}) {
   const reduceMotion = useReducedMotion();
-  const next = getNextCaseStudy(study.slug);
 
   return (
     <main className="flex flex-1 flex-col">
@@ -160,7 +165,7 @@ export default function CaseStudyView({ study }: { study: CaseStudy }) {
         </div>
       </article>
 
-      <Footer />
+      <Footer workItems={workItems} />
     </main>
   );
 }

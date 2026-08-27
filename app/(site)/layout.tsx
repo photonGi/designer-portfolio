@@ -1,0 +1,18 @@
+import Header from "@/components/Header";
+import SoundToggle from "@/components/SoundToggle";
+
+export default function SiteLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <>
+      <div className="relative z-10 flex min-h-full flex-1 flex-col">
+        <Header />
+        {children}
+      </div>
+      <SoundToggle />
+    </>
+  );
+}

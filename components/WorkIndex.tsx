@@ -7,7 +7,6 @@ import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   filterWorkItems,
-  workItems,
   type WorkItem,
 } from "@/lib/work";
 
@@ -102,7 +101,7 @@ function GridCard({
   );
 }
 
-export default function WorkIndex() {
+export default function WorkIndex({ items: allItems }: { items: WorkItem[] }) {
   const reduceMotion = useReducedMotion();
   const router = useRouter();
   const pathname = usePathname();
@@ -137,8 +136,8 @@ export default function WorkIndex() {
   });
 
   const items = useMemo(
-    () => filterWorkItems(workItems, filter),
-    [filter],
+    () => filterWorkItems(allItems, filter),
+    [allItems, filter],
   );
 
   const images = useMemo(

@@ -3,115 +3,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
+import { toProjectColumns, type WorkItem } from "@/lib/work";
 
 const ease = [0.22, 1, 0.36, 1] as const;
-
-type Project = {
-  name: string;
-  tag: string;
-  image: string;
-  aspect: string;
-  href?: string;
-};
-
-const columns: Project[][] = [
-  [
-    {
-      name: "Options Depth",
-      tag: "Trading",
-      image: "/images/case-studies/case-study1.png",
-      aspect: "346 / 260",
-      href: "/work/options-depth",
-    },
-    {
-      name: "OSPI",
-      tag: "CMS",
-      image: "/images/project1.png",
-      aspect: "346 / 259",
-    },
-    {
-      name: "Maria b",
-      tag: "Ecommerce",
-      image: "/images/project2.png",
-      aspect: "346 / 260",
-    },
-  ],
-  [
-    {
-      name: "Nishat",
-      tag: "Retail",
-      image: "/images/project3.png",
-      aspect: "346 / 240",
-    },
-    {
-      name: "Walim",
-      tag: "Ride Hailing",
-      image: "/images/project4.png",
-      aspect: "346 / 259",
-    },
-    {
-      name: "Airkart",
-      tag: "Ecommerce",
-      image: "/images/project5.png",
-      aspect: "346 / 303",
-    },
-  ],
-  [
-    {
-      name: "Lumu",
-      tag: "Retail",
-      image: "/images/project6.png",
-      aspect: "346 / 203",
-    },
-    {
-      name: "Booosted",
-      tag: "AI Chatbot",
-      image: "/images/project7.png",
-      aspect: "346 / 316",
-    },
-    {
-      name: "Squid ERP",
-      tag: "Enterprise",
-      image: "/images/project8.png",
-      aspect: "346 / 224",
-    },
-    {
-      name: "Unampay",
-      tag: "Ecommerce Solution",
-      image: "/images/project9.png",
-      aspect: "346 / 259",
-    },
-  ],
-  [
-    {
-      name: "Gallo Legal",
-      tag: "Legal Services",
-      image: "/images/project10.png",
-      aspect: "346 / 271",
-    },
-    {
-      name: "Dot Portal",
-      tag: "Healthcare & Wellness",
-      image: "/images/case-studies/case-study3.png",
-      aspect: "346 / 224",
-      href: "/work/dot-portal",
-    },
-    {
-      name: "Prosper Arch",
-      tag: "Architecture",
-      image: "/images/case-studies/case-study2.png",
-      aspect: "346 / 259",
-      href: "/work/prosper-architecture",
-    },
-  ],
-];
 
 function ProjectCard({
   project,
   index,
   reduceMotion,
 }: {
-  project: Project;
+  project: WorkItem;
   index: number;
   reduceMotion: boolean | null;
 }) {
@@ -124,7 +25,7 @@ function ProjectCard({
     >
       <div
         className="relative w-full overflow-hidden rounded-[5px] bg-border"
-        style={{ aspectRatio: project.aspect }}
+        style={{ aspectRatio: project.aspect ?? "346 / 260" }}
       >
         <motion.div
           className="absolute inset-0"
@@ -152,15 +53,16 @@ function ProjectCard({
       >
         <span className="text-xs text-foreground">{project.name}</span>
         <span className="rounded border border-border bg-[#14100c] px-2 py-[5px] text-xs leading-3 text-muted">
-          {project.tag}
+          {project.meta}
         </span>
       </motion.div>
     </Link>
   );
 }
 
-export default function OtherProjects() {
+export default function OtherProjects({ items }: { items: WorkItem[] }) {
   const reduceMotion = useReducedMotion();
+  const columns = toProjectColumns(items, 4);
 
   return (
     <section className="w-full px-4 pt-28 md:pt-40">
@@ -184,7 +86,7 @@ export default function OtherProjects() {
           <div key={columnIndex} className="flex flex-col gap-5">
             {column.map((project, rowIndex) => (
               <ProjectCard
-                key={project.name}
+                key={project.id}
                 project={project}
                 index={columnIndex + rowIndex * 4}
                 reduceMotion={reduceMotion}

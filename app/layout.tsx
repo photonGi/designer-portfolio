@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import CursorGlow from "@/components/CursorGlow";
-import Header from "@/components/Header";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import "./globals.css";
 
@@ -73,10 +72,7 @@ export default function RootLayout({
       <body className="relative flex min-h-full flex-col font-sans">
         <ThemeProvider>
           <CursorGlow />
-          <div className="relative z-10 flex min-h-full flex-1 flex-col">
-            <Header />
-            {children}
-          </div>
+          {children}
         </ThemeProvider>
       </body>
     </html>

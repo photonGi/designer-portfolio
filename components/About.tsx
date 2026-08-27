@@ -90,21 +90,7 @@ export default function About() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.25 }}
           transition={{ duration: 0.85, ease, delay: 0.08 }}
-          onMouseEnter={() => {
-            if (!canHover) return;
-            setHovered(true);
-          }}
-          onMouseLeave={() => {
-            if (!canHover) return;
-            setHovered(false);
-          }}
-          onMouseMove={(event) => {
-            if (!canHover) return;
-            const rect = event.currentTarget.getBoundingClientRect();
-            cursorX.set(event.clientX - rect.left + 16);
-            cursorY.set(event.clientY - rect.top + 16);
-            if (!hovered) setHovered(true);
-          }}
+          
           onClick={() => {
             if (canHover) return;
             setHovered((value) => !value);
@@ -118,22 +104,6 @@ export default function About() {
             className="object-cover"
           />
 
-          <AnimatePresence>
-            {hovered && (
-              <motion.div
-                className="pointer-events-none absolute left-0 top-0 z-10 select-none"
-                style={{ x: springX, y: springY }}
-                initial={{ opacity: 0, scale: 0.85 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ type: "spring", stiffness: 420, damping: 24 }}
-              >
-                <div className="rounded-[5px] bg-accent px-3.5 py-1.5 text-sm font-bold uppercase tracking-[0.14em] text-[#0a0a0a] shadow-[0_8px_24px_rgba(0,226,0,0.28)]">
-                  Chopa
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </motion.div>
 
         <motion.div

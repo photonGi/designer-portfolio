@@ -7,7 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-type CaseStudy = {
+type CaseStudyCard = {
   name: string;
   type: string;
   year: string;
@@ -16,40 +16,20 @@ type CaseStudy = {
   comingSoon?: boolean;
 };
 
-const studies: CaseStudy[] = [
-  {
-    name: "Options Depth",
-    type: "Trading",
-    year: "2025",
-    href: "/work/options-depth",
-    image: "/images/case-studies/case-study1.png",
-  },
-  {
-    name: "Prosper Architecture",
-    type: "Architecture",
-    year: "2026",
-    href: "/work/prosper-architecture",
-    image: "/images/case-studies/case-study2.png",
-  },
-  {
-    name: "Dot Portal",
-    type: "Healthcare & Wellness",
-    year: "2025",
-    href: "/work/dot-portal",
-    image: "/images/case-studies/case-study3.png",
-  },
-];
-
 function clamp(value: number, min: number, max: number) {
   if (min > max) return (min + max) / 2;
   return Math.min(max, Math.max(min, value));
 }
 
-export default function CaseStudies() {
+export default function CaseStudies({
+  studies,
+}: {
+  studies: CaseStudyCard[];
+}) {
   const reduceMotion = useReducedMotion();
   const images = useMemo(
     () => [...new Set(studies.map((study) => study.image))],
-    [],
+    [studies],
   );
 
   const [canHover, setCanHover] = useState(false);
@@ -133,7 +113,7 @@ export default function CaseStudies() {
     state.raf = settled ? 0 : requestAnimationFrame(animatePreview);
   };
 
-  const showPreview = (study: CaseStudy, index: number) => {
+  const showPreview = (study: CaseStudyCard, index: number) => {
     setActiveIndex(index);
     if (!canHover || !previewRef.current) return;
 
