@@ -78,8 +78,8 @@ export default function ContactMenu({
         className="group flex items-center gap-2 text-sm font-medium text-muted transition-colors duration-200 hover:text-foreground"
       >
         <span
-          className={`size-1.5 shrink-0 rounded-[1px] transition-colors duration-200 ${
-            open ? "bg-foreground" : "bg-transparent group-hover:bg-accent"
+          className={`size-1.5 shrink-0 rounded-[1px] bg-foreground transition-opacity duration-200 ${
+            open ? "opacity-100" : "opacity-0 group-hover:opacity-100"
           }`}
           aria-hidden
         />

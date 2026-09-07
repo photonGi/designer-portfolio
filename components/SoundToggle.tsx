@@ -1,224 +1,144 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { useSound } from "@/components/SoundProvider";
 
-const AUDIO_SRC = "/audiofile.mpeg";
 const BAR_COUNT = 7;
-const FFT_SIZE = 256;
+
+/** Default Figma audio-wave-01 silhouette (normalized 0–1). */
+const IDLE = [0.12, 0.52, 1, 0.7, 0.38, 0.52, 0.12];
+
+const MAX_BAR = 12;
+const MIN_BAR = 1.35;
+
+function setBar(line: SVGLineElement | null, level: number) {
+  if (!line) return;
+  const height = Math.max(MIN_BAR, Math.min(MAX_BAR, level * MAX_BAR));
+  const y = 8 - height / 2;
+  line.setAttribute("y1", String(y));
+  line.setAttribute("y2", String(y + height));
+}
+
+function lerp(a: number, b: number, t: number) {
+  return a + (b - a) * t;
+}
+
+/** Pull energy from a frequency band with a soft peak bias. */
+function bandLevel(
+  data: Uint8Array<ArrayBuffer>,
+  startRatio: number,
+  endRatio: number,
+) {
+  const len = data.length;
+  const start = Math.max(0, Math.floor(startRatio * len));
+  const end = Math.min(len, Math.max(start + 1, Math.floor(endRatio * len)));
+  let sum = 0;
+  let peak = 0;
+  for (let i = start; i < end; i++) {
+    const v = data[i] ?? 0;
+    sum += v;
+    if (v > peak) peak = v;
+  }
+  const avg = sum / (end - start);
+  return Math.min(1, (avg * 0.55 + peak * 0.45) / 210);
+}
 
 export default function SoundToggle() {
-  const [enabled, setEnabled] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const barsRef = useRef<(HTMLSpanElement | null)[]>([]);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const ctxRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
-  const rafRef = useRef<number | null>(null);
-  const dataRef = useRef<Uint8Array<ArrayBuffer> | null>(null);
-  const enabledRef = useRef(false);
+  const { enabled, toggle, subscribeLevels } = useSound();
+  const linesRef = useRef<(SVGLineElement | null)[]>([]);
+  const smoothRef = useRef([...IDLE]);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const stopVisual = useCallback(() => {
-    if (rafRef.current !== null) {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-    }
-    barsRef.current.forEach((bar) => {
-      if (bar) bar.style.transform = "scaleY(0.22)";
+    IDLE.forEach((level, index) => {
+      smoothRef.current[index] = level;
+      setBar(linesRef.current[index], level);
     });
   }, []);
 
-  const draw = useCallback(() => {
-    const analyser = analyserRef.current;
-    const data = dataRef.current;
-    if (!analyser || !data || !enabledRef.current) return;
-
-    analyser.getByteFrequencyData(data);
-
-    const step = Math.max(1, Math.floor(data.length / (BAR_COUNT * 2.2)));
-    for (let i = 0; i < BAR_COUNT; i++) {
-      const bar = barsRef.current[i];
-      if (!bar) continue;
-      // Mirror-ish weighting: outer bars quieter, center reacts strongest
-      const bin = i * step + 3;
-      const value = data[bin] ?? 0;
-      const weight = 0.55 + (1 - Math.abs(i - (BAR_COUNT - 1) / 2) / BAR_COUNT);
-      const scale = Math.max(0.18, Math.min(1, (value / 155) * weight));
-      bar.style.transform = `scaleY(${scale})`;
-    }
-
-    rafRef.current = requestAnimationFrame(draw);
-  }, []);
-
-  const ensureAudio = useCallback(async () => {
-    if (!audioRef.current) {
-      const audio = new Audio(AUDIO_SRC);
-      audio.loop = true;
-      audio.preload = "auto";
-      audio.crossOrigin = "anonymous";
-      audioRef.current = audio;
-    }
-
-    if (!ctxRef.current) {
-      const AudioCtx =
-        window.AudioContext ||
-        (window as typeof window & { webkitAudioContext?: typeof AudioContext })
-          .webkitAudioContext;
-      if (!AudioCtx) throw new Error("Web Audio API unavailable");
-      ctxRef.current = new AudioCtx();
-    }
-
-    const ctx = ctxRef.current;
-    if (ctx.state === "suspended") await ctx.resume();
-
-    if (!analyserRef.current && audioRef.current && !sourceRef.current) {
-      const analyser = ctx.createAnalyser();
-      analyser.fftSize = FFT_SIZE;
-      analyser.smoothingTimeConstant = 0.68;
-      analyserRef.current = analyser;
-      dataRef.current = new Uint8Array(
-        new ArrayBuffer(analyser.frequencyBinCount),
-      );
-
-      const source = ctx.createMediaElementSource(audioRef.current);
-      source.connect(analyser);
-      analyser.connect(ctx.destination);
-      sourceRef.current = source;
-    }
-
-    return audioRef.current;
-  }, []);
-
-  const disableSound = useCallback(() => {
-    enabledRef.current = false;
-    const audio = audioRef.current;
-    if (audio) {
-      audio.pause();
-      audio.currentTime = 0;
-    }
-    setEnabled(false);
-    stopVisual();
-  }, [stopVisual]);
-
-  const enableSound = useCallback(async () => {
-    const audio = await ensureAudio();
-    await audio.play();
-    enabledRef.current = true;
-    setEnabled(true);
-    stopVisual();
-    rafRef.current = requestAnimationFrame(draw);
-  }, [draw, ensureAudio, stopVisual]);
-
-  const toggle = useCallback(async () => {
-    try {
-      if (enabledRef.current) {
-        disableSound();
-      } else {
-        await enableSound();
-      }
-    } catch {
-      disableSound();
-    }
-  }, [disableSound, enableSound]);
-
   useEffect(() => {
-    return () => {
-      enabledRef.current = false;
-      stopVisual();
-      const audio = audioRef.current;
-      if (audio) {
-        audio.pause();
-        audio.removeAttribute("src");
-        audio.load();
-      }
-      try {
-        sourceRef.current?.disconnect();
-        analyserRef.current?.disconnect();
-      } catch {
-        /* already disconnected */
-      }
-      void ctxRef.current?.close();
-      audioRef.current = null;
-      sourceRef.current = null;
-      analyserRef.current = null;
-      ctxRef.current = null;
-      dataRef.current = null;
-    };
-  }, [stopVisual]);
+    if (!enabled) {
+      // Ease back to the default wave silhouette
+      let raf = 0;
+      const settle = () => {
+        let done = true;
+        for (let i = 0; i < BAR_COUNT; i++) {
+          const target = IDLE[i] ?? 0.2;
+          const next = lerp(smoothRef.current[i] ?? target, target, 0.18);
+          smoothRef.current[i] = next;
+          setBar(linesRef.current[i], next);
+          if (Math.abs(next - target) > 0.01) done = false;
+        }
+        if (!done) raf = requestAnimationFrame(settle);
+      };
+      raf = requestAnimationFrame(settle);
+      return () => cancelAnimationFrame(raf);
+    }
 
-  if (!mounted) return null;
+    // Logarithmic-ish bands: bass → mid → high across the 7 bars
+    const bands: [number, number][] = [
+      [0.02, 0.06],
+      [0.06, 0.12],
+      [0.12, 0.2],
+      [0.2, 0.32],
+      [0.32, 0.48],
+      [0.48, 0.66],
+      [0.66, 0.88],
+    ];
+
+    return subscribeLevels((data) => {
+      for (let i = 0; i < BAR_COUNT; i++) {
+        const [start, end] = bands[i] ?? [0, 1];
+        let target = bandLevel(data, start, end);
+
+        // Keep a readable silhouette: center bars a bit taller
+        const weight = 0.72 + (1 - Math.abs(i - 3) / 3) * 0.4;
+        target = Math.max(0.14, Math.min(1, target * weight));
+
+        const current = smoothRef.current[i] ?? target;
+        // Fast attack, slower release — feels like a real meter
+        const t = target > current ? 0.42 : 0.14;
+        const next = lerp(current, target, t);
+        smoothRef.current[i] = next;
+        setBar(linesRef.current[i], next);
+      }
+    });
+  }, [enabled, subscribeLevels]);
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
-      <button
-        type="button"
-        onClick={() => void toggle()}
-        className={[
-          "pointer-events-auto group relative inline-flex items-center gap-3 overflow-hidden",
-          "rounded-full border px-4 py-2.5 backdrop-blur-xl transition-all duration-500",
-          "shadow-[0_8px_32px_rgba(0,0,0,0.28)]",
-          enabled
-            ? "border-accent/35 bg-[color-mix(in_srgb,var(--background)_72%,transparent)] text-foreground"
-            : "border-border/80 bg-[color-mix(in_srgb,var(--background)_78%,transparent)] text-muted hover:border-foreground/25 hover:text-foreground",
-        ].join(" ")}
-        aria-pressed={enabled}
-        aria-label={enabled ? "Turn sounds off" : "Turn sounds on"}
-      >
-        {/* Ambient wash when playing */}
-        <span
-          aria-hidden
-          className={[
-            "pointer-events-none absolute inset-0 transition-opacity duration-700",
-            enabled ? "opacity-100" : "opacity-0",
-          ].join(" ")}
-          style={{
-            background:
-              "radial-gradient(120% 80% at 70% 50%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 62%)",
-          }}
-        />
-
-        <span className="relative font-mono text-[10px] leading-none text-current/40">
-          [
-        </span>
-
-        <span className="relative flex items-center gap-2.5">
-          <span className="text-[11px] font-medium uppercase tracking-[0.18em]">
-            Sounds {enabled ? "on" : "off"}
-          </span>
-
-          <span
-            className={[
-              "flex h-4 items-center gap-[3px] transition-colors duration-500",
-              enabled ? "text-accent" : "text-current",
-            ].join(" ")}
-            aria-hidden
-          >
-            {Array.from({ length: BAR_COUNT }, (_, i) => (
-              <span
-                key={i}
-                ref={(el) => {
-                  barsRef.current[i] = el;
-                }}
-                className="w-[1.5px] origin-center rounded-full bg-current will-change-transform"
-                style={{
-                  height: "100%",
-                  transform: "scaleY(0.22)",
-                  opacity: enabled ? 1 : 0.45,
-                  transition: "opacity 400ms ease",
-                }}
-              />
-            ))}
-          </span>
-        </span>
-
-        <span className="relative font-mono text-[10px] leading-none text-current/40">
-          ]
-        </span>
-      </button>
-    </div>
+    <button
+      type="button"
+      onClick={() => void toggle()}
+      className={[
+        "relative flex h-7 items-center justify-center rounded px-2 transition-all duration-300",
+        enabled
+          ? "bg-[#16120f] text-foreground ring-1 ring-foreground/25 [[data-theme=light]_&]:bg-[#e0dad1] [[data-theme=light]_&]:text-[#181411] [[data-theme=light]_&]:ring-[#181411]/20"
+          : "bg-[#0b0806] text-white/85 hover:bg-[#16120f] hover:text-white [[data-theme=light]_&]:bg-[#ebe6df] [[data-theme=light]_&]:text-[#181411]/80 [[data-theme=light]_&]:hover:bg-[#e0dad1] [[data-theme=light]_&]:hover:text-[#181411]",
+      ].join(" ")}
+      aria-pressed={enabled}
+      aria-label={enabled ? "Turn sounds off" : "Turn sounds on"}
+    >
+      <svg viewBox="0 0 16 16" fill="none" className="size-4" aria-hidden>
+        {IDLE.map((level, index) => {
+          const x = 2 + index * 2;
+          const height = Math.max(MIN_BAR, level * MAX_BAR);
+          const y = 8 - height / 2;
+          return (
+            <line
+              key={index}
+              ref={(el) => {
+                linesRef.current[index] = el;
+              }}
+              x1={x}
+              y1={y}
+              x2={x}
+              y2={y + height}
+              stroke="currentColor"
+              strokeWidth="1.15"
+              strokeLinecap="round"
+            />
+          );
+        })}
+      </svg>
+    </button>
   );
 }

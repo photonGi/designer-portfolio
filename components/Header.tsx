@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import ContactMenu from "@/components/ContactMenu";
+import SoundToggle from "@/components/SoundToggle";
 import ThemeToggle from "@/components/ThemeToggle";
 
 const links = [
@@ -37,24 +38,24 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-sm">
-      <div className="flex items-center justify-between px-4 py-2">
+      <div className="flex items-center justify-between gap-4 px-4 py-2">
         <Link
           href="/"
-          className="flex items-baseline gap-2 md:gap-3"
+          className="flex min-w-0 items-center gap-3"
           onClick={() => {
             setMenuOpen(false);
             setContactOpen(false);
           }}
         >
-          <span className="whitespace-nowrap text-base font-medium text-foreground">
+          <span className="truncate text-base font-medium text-foreground">
             Syed Saqib Abbas
           </span>
-          <span className="hidden text-sm font-medium text-muted sm:inline">
+          <span className="hidden shrink-0 text-sm font-medium text-muted sm:inline">
             UX Designer
           </span>
         </Link>
 
-        <div className="flex items-center gap-6 md:gap-10">
+        <div className="flex shrink-0 items-center gap-6 md:gap-10">
           <nav
             className="hidden items-center gap-10 md:flex"
             aria-label="Primary"
@@ -67,13 +68,13 @@ export default function Header() {
                   href={link.href}
                   aria-current={active ? "page" : undefined}
                   onClick={() => setContactOpen(false)}
-                  className="group flex items-center gap-2 text-sm font-medium text-muted transition-colors duration-200 hover:text-foreground"
+                  className="group flex w-[65px] items-center gap-2 text-sm font-medium text-muted transition-colors duration-200 hover:text-foreground"
                 >
                   <span
-                    className={`size-1.5 shrink-0 rounded-[1px] transition-colors duration-200 ${
+                    className={`size-1.5 shrink-0 rounded-[1px] bg-foreground transition-opacity duration-200 ${
                       active
-                        ? "bg-foreground"
-                        : "bg-transparent group-hover:bg-accent"
+                        ? "opacity-100"
+                        : "opacity-0 group-hover:opacity-100"
                     }`}
                     aria-hidden
                   />
@@ -87,7 +88,10 @@ export default function Header() {
             <ContactMenu open={contactOpen} onOpenChange={setContactOpen} />
           </nav>
 
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <SoundToggle />
+          </div>
 
           <button
             type="button"
@@ -136,8 +140,8 @@ export default function Header() {
                 className="flex items-center gap-3 py-3 text-base font-medium text-muted transition-colors duration-200 hover:text-foreground"
               >
                 <span
-                  className={`size-1.5 shrink-0 rounded-[1px] ${
-                    active ? "bg-foreground" : "bg-transparent"
+                  className={`size-1.5 shrink-0 rounded-[1px] bg-foreground transition-opacity duration-200 ${
+                    active ? "opacity-100" : "opacity-0"
                   }`}
                   aria-hidden
                 />
