@@ -2,13 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import {
-  AnimatePresence,
-  motion,
-  useMotionValue,
-  useReducedMotion,
-  useSpring,
-} from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
 import ReactiveImage from "@/components/ReactiveImage";
 
@@ -36,13 +30,7 @@ export function ActionButtons({ className = "" }: { className?: string }) {
 
 export default function About() {
   const reduceMotion = useReducedMotion();
-  const [hovered, setHovered] = useState(false);
   const [canHover, setCanHover] = useState(false);
-
-  const cursorX = useMotionValue(0);
-  const cursorY = useMotionValue(0);
-  const springX = useSpring(cursorX, { stiffness: 380, damping: 28, mass: 0.4 });
-  const springY = useSpring(cursorY, { stiffness: 380, damping: 28, mass: 0.4 });
 
   useEffect(() => {
     const media = window.matchMedia("(hover: hover) and (pointer: fine)");
@@ -67,13 +55,14 @@ export default function About() {
         <p className="text-sm text-muted">About</p>
 
         <div className="flex flex-col gap-6">
-          <h2 className="max-w-[528px] text-[clamp(1.5rem,3vw,2.125rem)] font-normal leading-tight text-foreground">
-            Saqib is a Pakistan based UX designer working across design,
-            execution, and AI workflows.
+          <h2 className="about-lead max-w-[528px] font-normal leading-tight text-foreground ">
+            {"I'm Saqib, Developer by training, designer by obsession. I spent years doing both at once before I took the leap. I am still taking it."}
           </h2>
-          <p className="max-w-[370px] text-base leading-relaxed text-muted">
-            I design fully immersive customer experiences end to end.
-          </p>
+          <h2 className="about-lead max-w-[528px] font-normal leading-tight text-foreground">
+            Developing taught me constraints. Art taught me instinct. UX is where
+            I stopped choosing between them and started using the tension to find
+            better answers.
+          </h2>
         </div>
 
         <div className="mt-auto pt-8">
@@ -81,20 +70,16 @@ export default function About() {
         </div>
       </motion.div>
 
-      <div className="flex w-full gap-2 md:w-[min(848px,58%)]">
+      <div className="about-media flex w-full gap-2">
         <motion.div
-          className={`relative min-h-[280px] flex-1 overflow-hidden rounded bg-border md:min-h-[432px] ${
-            canHover ? "cursor-none" : ""
-          }`}
+          className={
+            "relative min-h-[280px] flex-1 overflow-hidden rounded bg-border md:min-h-[432px]" +
+            (canHover ? " cursor-none" : "")
+          }
           initial={reduceMotion ? false : { opacity: 0, y: 36 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.25 }}
           transition={{ duration: 0.85, ease, delay: 0.08 }}
-          
-          onClick={() => {
-            if (canHover) return;
-            setHovered((value) => !value);
-          }}
         >
           <Image
             src="/images/chopa.png"
@@ -103,11 +88,10 @@ export default function About() {
             sizes="(max-width: 768px) 50vw, 35vw"
             className="object-cover"
           />
-
         </motion.div>
 
         <motion.div
-          className="relative min-h-[280px] w-[42%] overflow-hidden rounded bg-border md:min-h-[432px] md:w-[346px] md:shrink-0"
+          className="about-media-side relative min-h-[280px] w-[42%] overflow-hidden rounded bg-border md:min-h-[432px] md:shrink-0"
           initial={reduceMotion ? false : { opacity: 0, y: 36 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.25 }}

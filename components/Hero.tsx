@@ -119,11 +119,11 @@ export default function Hero() {
               transition={{ type: "spring", stiffness: 420, damping: 20 }}
             >
               <Image
-                src="/images/header-cursor.png"
+                src="/images/header-cursor2.png"
                 alt=""
-                width={56}
-                height={56}
-                className="h-10 w-10 object-contain drop-shadow-[0_0_10px_rgba(0,226,0,0.35)] md:h-14 md:w-14"
+                width={70}
+                height={33}
+                className="h-[33px] w-[70px] drop-shadow-[0_0_10px_rgba(0,226,0,0.35)]"
               />
             </motion.span>
           )}

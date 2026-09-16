@@ -39,6 +39,24 @@ body {
   font-family: var(--font-sans);
 }
 
+.about-lead {
+  font-size: 24px;
+}
+
+.about-media {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .about-media {
+    width: min(848px, 58%);
+  }
+
+  .about-media-side {
+    width: 346px;
+  }
+}
+
 .reactive-field {
   pointer-events: none;
   position: fixed;
@@ -102,6 +120,12 @@ body {
 .case-preview-img.is-active[data-dir="-1"] {
   animation-name: case-preview-wipe-up;
 }
+.home-case-studies li{
+  border-bottom: 1px solid #2f2a24;
+}
+.home-case-studies li:last-child{
+  border-bottom: none;
+}
 
 @keyframes case-preview-wipe {
   from {
@@ -125,11 +149,41 @@ body {
   }
 }
 
+@keyframes clients-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-100%, 0, 0);
+  }
+}
+
+.animate-clients-marquee {
+  animation: clients-marquee 45s linear infinite;
+  will-change: transform;
+}
+
+/* Logos are muted on black PNGs — lift grey artwork; black bg stays black */
+.client-logo {
+  filter: brightness(3.2) contrast(1.25) saturate(0);
+  opacity: 0.85;
+}
+
+[data-theme="light"] .client-logo {
+  filter: brightness(0.35) contrast(1.1);
+  opacity: 0.8;
+  mix-blend-mode: multiply;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reactive-field,
   .reactive-image-canvas,
   .case-preview {
     display: none;
+  }
+
+  .animate-clients-marquee {
+    animation: none;
   }
 }
 

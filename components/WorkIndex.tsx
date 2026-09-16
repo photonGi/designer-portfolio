@@ -49,18 +49,23 @@ function GridCard({
   item,
   index,
   reduceMotion,
+  slot,
 }: {
   item: WorkItem;
   index: number;
   reduceMotion: boolean | null;
+  slot: GridSlot;
 }) {
   const delay = Math.min(index * 0.05, 0.4);
 
   return (
-    <Link href={item.href ?? "#"} className="group flex w-full flex-col gap-1.5">
+    <Link
+      href={item.href ?? "#"}
+      className={`group flex w-full flex-col gap-2 self-start ${slot.className}`}
+    >
       <div
         className="relative w-full overflow-hidden rounded-[5px] bg-border"
-        style={{ aspectRatio: item.aspect ?? "346 / 240" }}
+        style={{ aspectRatio: slot.aspect }}
       >
         <motion.div
           className="absolute inset-0"
@@ -73,33 +78,59 @@ function GridCard({
             src={item.image}
             alt={item.name}
             fill
-            sizes="(max-width: 768px) 100vw, 25vw"
+            sizes="(max-width: 768px) 100vw, 58vw"
             className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
           />
         </motion.div>
       </div>
 
       <motion.div
-        className="flex flex-wrap items-center gap-2"
+        className="flex w-full items-center justify-between gap-3"
         initial={reduceMotion ? false : { y: 18, opacity: 0 }}
         whileInView={{ y: 0, opacity: 1 }}
         viewport={{ once: true, amount: 0.8 }}
         transition={{ duration: 0.65, ease, delay: delay + 0.08 }}
       >
-        <span className="text-xs text-foreground">{item.name}</span>
-        {item.comingSoon ? (
-          <span className="rounded border border-border bg-[#14100c] px-2 py-[5px] text-xs leading-3 text-muted">
-            Coming soon
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="truncate text-base font-medium text-foreground">
+            {item.name}
           </span>
-        ) : (
-          <span className="rounded border border-border bg-[#14100c] px-2 py-[5px] text-xs leading-3 text-muted">
-            {item.meta}
+          <span className="shrink-0 rounded border border-border bg-[#14100c] px-2 py-[5px] text-xs leading-3 text-muted [[data-theme=light]_&]:bg-background">
+            {item.comingSoon ? "Coming soon" : item.meta}
           </span>
-        )}
+        </div>
+        <span className="shrink-0 text-xs font-medium text-muted">
+          {item.year}
+        </span>
       </motion.div>
     </Link>
   );
 }
+
+/** Figma 12-col staggered work grid — cycles every 4 items. */
+type GridSlot = {
+  className: string;
+  aspect: string;
+};
+
+const GRID_SLOTS: GridSlot[] = [
+  {
+    className: "md:col-span-7 md:col-start-1",
+    aspect: "820 / 645",
+  },
+  {
+    className: "md:col-span-4 md:col-start-9 md:pt-24",
+    aspect: "460 / 366",
+  },
+  {
+    className: "md:col-span-5 md:col-start-2",
+    aspect: "580 / 461",
+  },
+  {
+    className: "md:col-span-5 md:col-start-8 md:pt-16",
+    aspect: "580 / 459",
+  },
+];
 
 export default function WorkIndex({ items: allItems }: { items: WorkItem[] }) {
   const reduceMotion = useReducedMotion();
@@ -144,14 +175,6 @@ export default function WorkIndex({ items: allItems }: { items: WorkItem[] }) {
     () => [...new Set(items.map((item) => item.image))],
     [items],
   );
-
-  const gridColumns = useMemo(() => {
-    const cols: WorkItem[][] = [[], [], [], []];
-    items.forEach((item, index) => {
-      cols[index % 4].push(item);
-    });
-    return cols;
-  }, [items]);
 
   useEffect(() => {
     const param = searchParams.get("view");
@@ -410,24 +433,21 @@ export default function WorkIndex({ items: allItems }: { items: WorkItem[] }) {
         </div>
       ) : (
         <motion.div
-          className="grid grid-cols-1 gap-5 px-4 pb-[120px] sm:grid-cols-2 lg:grid-cols-4 lg:gap-2"
+          className="grid grid-cols-1 gap-x-2 gap-y-10 px-4 pb-[120px] md:grid-cols-12 md:gap-y-16"
           initial={reduceMotion ? false : { opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, ease }}
           key={`grid-${filter}`}
           aria-label="Selected works grid"
         >
-          {gridColumns.map((column, columnIndex) => (
-            <div key={columnIndex} className="flex flex-col gap-5">
-              {column.map((item, rowIndex) => (
-                <GridCard
-                  key={item.id}
-                  item={item}
-                  index={columnIndex + rowIndex * 4}
-                  reduceMotion={reduceMotion}
-                />
-              ))}
-            </div>
+          {items.map((item, index) => (
+            <GridCard
+              key={item.id}
+              item={item}
+              index={index}
+              reduceMotion={reduceMotion}
+              slot={GRID_SLOTS[index % GRID_SLOTS.length]!}
+            />
           ))}
         </motion.div>
       )}

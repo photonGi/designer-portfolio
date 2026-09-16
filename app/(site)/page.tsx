@@ -1,5 +1,6 @@
 import About from "@/components/About";
 import CaseStudies from "@/components/CaseStudies";
+import Clients from "@/components/Clients";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 import OtherProjects from "@/components/OtherProjects";
@@ -36,6 +37,7 @@ export default async function Home() {
     <main className="flex flex-1 flex-col">
       <Hero />
       <Showreel />
+      <Clients />
       <CaseStudies studies={featuredStudies} />
       <OtherProjects items={workItems} />
       <About />

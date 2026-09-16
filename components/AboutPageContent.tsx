@@ -36,22 +36,21 @@ const mentorship: LineItem[] = [
   { title: "UI/UX Instructor · USEFP,", meta: "2023" },
 ];
 
-const highlights = [
-  "Designer and developer on two fully custom Shopify themes, oleus.com for Nestlé and 113spring.com, built as scalable component systems their teams launch new pages with, no developer needed.",
-  "Built MVPs and prototypes to validate new ventures for enterprise clients, including goretexkidswear.com for Gore.",
-  "Translated venture strategy into visual narratives and GTM assets for Liberty Global, Nestlé and Gore, aligning large stakeholder groups.",
-];
+const aboutBio = [
+  "Product designer working at the intersection of research and interface. I design mobile and web products end to end — from flows and wireframes to polished, production-ready UI. Currently leading design operations at Devsinc, where I manage the design team across service projects. Based in Pakistan.",
+  "I move between industries by design, not accident. Fintech, healthcare, insurance, architecture, hospitality — each project starts the same way: understand the user, map the system, then design the interface that makes it simple. I care less about pixels for their own sake and more about whether the product actually works for the person using it.",
+] as const;
 
 const stackColumns: GridColumn[] = [
   {
     label: "UX Research",
     items: [
-      { title: "TypeScript" },
-      { title: "JavaScript" },
-      { title: "React" },
-      { title: "Next.js" },
-      { title: "React Native" },
-      { title: "Swift" },
+      { title: "Project Directory" },
+      { title: "User Research" },
+      { title: "Qualitative Research" },
+      { title: "Quantitative Research" },
+      { title: "Competitive Analysis" },
+      { title: "User Survey" },
     ],
   },
   {
@@ -59,20 +58,21 @@ const stackColumns: GridColumn[] = [
     items: [
       { title: "Figma" },
       { title: "Webflow" },
-      { title: "Blender" },
-      { title: "After Effects" },
-      { title: "Adobe CC" },
+      { title: "Framer" },
+      { title: "After Photoshop" },
+      { title: "Adobe Illustrator" },
+      { title: "Figma Make" },
     ],
   },
   {
-    label: "Documentation & Communication",
+    label: "AI Automation",
     items: [
-      { title: "LangChain" },
-      { title: "Claude Code" },
-      { title: "Codex" },
-      { title: "MCP" },
-      { title: "n8n" },
-      { title: "Make" },
+      { title: "Claude" },
+      { title: "Chat GPT" },
+      { title: "Lovable" },
+      { title: "Polymet" },
+      { title: "Perplexity" },
+      { title: "Grok" },
     ],
   },
 ];
@@ -80,7 +80,7 @@ const stackColumns: GridColumn[] = [
 const heroLinks = [
   { label: "Email", href: "mailto:saqibabbas052@gmail.com" },
   { label: "Book a call", href: "mailto:saqibabbas052@gmail.com" },
-  { label: "LinkedIn ↗︎", href: "#" },
+  { label: "LinkedIn", href: "#" },
   { label: "Resume", href: "#" },
 ] as const;
 
@@ -147,14 +147,14 @@ export default function AboutPageContent() {
   return (
     <div className="w-full">
       {/* Hero */}
-      <section className="flex w-full flex-col gap-8 px-4 pt-24 md:flex-row md:items-stretch md:gap-2 md:pt-28 lg:gap-5">
+      <section className="flex w-full flex-col gap-8 px-4 pt-24 md:flex-row md:items-stretch md:gap-2 md:pt-28 lg:gap-2">
         <motion.div
-          className="flex min-w-0 flex-1 flex-col justify-end gap-4 md:pr-6"
+          className="flex min-w-0 flex-1 flex-col justify-end gap-4 md:max-w-[649px] md:pr-6"
           initial={reduceMotion ? false : { opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.85, ease }}
         >
-          <h1 className="text-[clamp(2.75rem,7vw,5rem)] font-normal leading-[1] tracking-tight text-foreground">
+          <h1 className="text-[clamp(2.75rem,7vw,5rem)] font-normal leading-[1] tracking-tight text-foreground md:text-[80px] md:leading-[80px]">
             Syed
             <br />
             Saqib Abbas
@@ -162,16 +162,16 @@ export default function AboutPageContent() {
           <p className="text-sm text-muted">UX Designer · Devsinc</p>
         </motion.div>
 
-        <div className="flex min-w-0 flex-[1.35] flex-col gap-5 md:flex-row md:items-stretch">
+        <div className="flex min-w-0 flex-[1.35] flex-col gap-5 md:flex-row md:items-stretch md:gap-5">
           <motion.div
-            className="relative mx-auto aspect-[400/520] w-full max-w-[400px] overflow-hidden rounded-[5px] bg-border md:mx-0 md:h-auto md:min-h-[420px] md:w-[min(400px,42%)] md:max-w-none md:shrink-0"
+            className="relative mx-auto aspect-[400/525] w-full max-w-[400px] overflow-hidden rounded-[5px] bg-border md:mx-0 md:h-auto md:min-h-[525px] md:w-[400px] md:max-w-none md:shrink-0"
             initial={reduceMotion ? false : { opacity: 0, y: 36, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.9, ease, delay: 0.08 }}
           >
             <Image
-              src="/images/chopa.png"
-              alt="Syed Saqib Abbas"
+              src="/images/syed-saqib-abbas.png"
+              alt="Portrait of Syed Saqib Abbas"
               fill
               priority
               sizes="(max-width: 768px) 90vw, 400px"
@@ -180,39 +180,18 @@ export default function AboutPageContent() {
           </motion.div>
 
           <motion.div
-            className="flex min-w-0 flex-1 flex-col gap-6 md:pr-5"
+            className="flex min-w-0 flex-1 flex-col justify-between gap-6 md:h-[525px] md:pr-5"
             initial={reduceMotion ? false : { opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.85, ease, delay: 0.16 }}
           >
-            <div className="max-w-[360px] space-y-4 text-sm leading-relaxed text-muted">
-              <p>
-                Design engineer working at the intersection of design and code. I
-                design and build fully custom web experiences end to end, from
-                first Figma frame to production build. Lately that includes native
-                apps. Based in Pakistan.
-              </p>
-              <p>
-                An AI-augmented workflow with Cursor and Claude Code sits at the
-                core of how I ship. Recent client involvements include Nestlé,
-                Lilly, Chanel and Gore. I move fast and treat shipping as the only
-                proof that something is real.
-              </p>
+            <div className="max-w-[360px] space-y-4 text-sm leading-[1.5] text-muted">
+              {aboutBio.map((paragraph) => (
+                <p key={paragraph.slice(0, 32)}>{paragraph}</p>
+              ))}
             </div>
 
-            <ul className="flex max-w-[360px] flex-col gap-2">
-              {highlights.map((item, index) => (
-                <SlashItem
-                  key={item}
-                  title={item}
-                  muted
-                  delay={0.05 * index}
-                  reduceMotion={reduceMotion}
-                />
-              ))}
-            </ul>
-
-            <div className="mt-auto flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-t border-border pt-4">
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-t border-border pt-4">
               {heroLinks.map((link) => (
                 <Link
                   key={link.label}
@@ -292,7 +271,7 @@ export default function AboutPageContent() {
             transition={{ duration: 0.7, ease }}
           >
             <DashedCell alignEnd className="h-full min-h-[120px]">
-              <h2 className="text-2xl font-medium text-foreground">Stack</h2>
+              <h2 className="text-2xl font-medium text-foreground">Skills & Stacks</h2>
             </DashedCell>
           </motion.div>
 

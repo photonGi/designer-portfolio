@@ -179,7 +179,7 @@ export default function CaseStudies({
           }
           onPointerLeave={canHover ? hidePreview : undefined}
         >
-          <ul className="flex w-full flex-col">
+          <ul className="flex w-full flex-col home-case-studies">
             {studies.map((study, index) => {
               const isActive = activeIndex === index;
               return (
