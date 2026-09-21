@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import CaseStudyView from "@/components/CaseStudyView";
+import ProjectDetailView from "@/components/ProjectDetailView";
 import {
-  getCaseStudies,
-  getCaseStudyBySlug,
-  getNextCaseStudyBySlug,
+  getNextProjectBySlug,
+  getProjectBySlug,
+  getProjects,
   getWorkItems,
 } from "@/lib/content";
 
@@ -15,31 +15,33 @@ type PageProps = {
 };
 
 export async function generateStaticParams() {
-  const studies = await getCaseStudies();
-  return studies.map((study) => ({ slug: study.slug }));
+  const projects = await getProjects();
+  return projects.map((project) => ({ slug: project.slug }));
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const study = await getCaseStudyBySlug(slug);
-  if (!study) return { title: "Work" };
+  const project = await getProjectBySlug(slug);
+  if (!project) return { title: "Work" };
 
   return {
-    title: `${study.title} — Syed Saqib Abbas`,
-    description: study.summary,
+    title: `${project.title} — Syed Saqib Abbas`,
+    description: project.summary,
   };
 }
 
-export default async function CaseStudyPage({ params }: PageProps) {
+export default async function ProjectDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const study = await getCaseStudyBySlug(slug);
-  if (!study) notFound();
+  const project = await getProjectBySlug(slug);
+  if (!project) notFound();
   const [next, workItems] = await Promise.all([
-    getNextCaseStudyBySlug(slug),
+    getNextProjectBySlug(slug),
     getWorkItems(),
   ]);
 
-  return <CaseStudyView study={study} next={next} workItems={workItems} />;
+  return (
+    <ProjectDetailView project={project} next={next} workItems={workItems} />
+  );
 }

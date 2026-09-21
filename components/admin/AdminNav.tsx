@@ -6,7 +6,6 @@ import { usePathname, useRouter } from "next/navigation";
 const nav: { href: string; label: string; exact?: boolean }[] = [
   { href: "/admin", label: "Dashboard", exact: true },
   { href: "/admin/projects", label: "Projects" },
-  { href: "/admin/case-studies", label: "Case Studies" },
 ];
 
 export default function AdminNav() {

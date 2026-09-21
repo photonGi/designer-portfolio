@@ -1,19 +1,32 @@
 import { NextResponse } from "next/server";
 import {
+  getProjects,
   getWorkItems,
+  saveProjects,
   saveWorkItems,
   slugify,
+  workItemFromProject,
 } from "@/lib/content";
 import { requireAdmin } from "@/lib/admin/auth";
-import type { WorkItem } from "@/lib/work";
+import type { Project } from "@/lib/projects";
+
+type ProjectPayload = Partial<Project> & {
+  name?: string;
+  image?: string;
+  industry?: string;
+  year?: string;
+  aspect?: string;
+  comingSoon?: boolean;
+};
 
 export async function GET() {
   try {
     await requireAdmin();
-    const items = await getWorkItems();
-    return NextResponse.json(
-      items.filter((item) => item.category === "project"),
-    );
+    const [work, details] = await Promise.all([
+      getWorkItems(),
+      getProjects(),
+    ]);
+    return NextResponse.json({ work, details });
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -22,46 +35,88 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     await requireAdmin();
-    const body = (await request.json()) as Partial<WorkItem>;
+    const body = (await request.json()) as ProjectPayload;
 
-    if (!body.name?.trim() || !body.image?.trim()) {
+    const title = (body.title || body.name || "").trim();
+    const cover = (body.cover || body.image || "").trim();
+    const summary = (body.summary || "").trim();
+
+    if (!title || !cover || !summary) {
       return NextResponse.json(
-        { error: "Name and image are required" },
+        { error: "Title, summary, and cover are required" },
         { status: 400 },
       );
     }
 
-    const items = await getWorkItems();
-    const id = slugify(body.id || body.name);
-    if (!id) {
-      return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+    const slug = slugify(body.slug || title);
+    if (!slug) {
+      return NextResponse.json({ error: "Invalid slug" }, { status: 400 });
     }
-    if (items.some((item) => item.id === id)) {
+
+    const [work, projects] = await Promise.all([
+      getWorkItems(),
+      getProjects(),
+    ]);
+
+    if (
+      work.some((item) => item.id === slug) ||
+      projects.some((project) => project.slug === slug)
+    ) {
       return NextResponse.json(
-        { error: "A work item with this id already exists" },
+        { error: "A project with this slug already exists" },
         { status: 409 },
       );
     }
 
-    const item: WorkItem = {
-      id,
-      name: body.name.trim(),
-      meta: body.meta?.trim() || "Project",
-      year: body.year?.trim() || new Date().getFullYear().toString(),
-      image: body.image.trim(),
-      category: "project",
-      aspect: body.aspect?.trim() || "346 / 260",
-      href: body.href?.trim() || "#",
-      comingSoon: Boolean(body.comingSoon),
+    const detail: Project = {
+      slug,
+      title,
+      summary,
+      meta:
+        Array.isArray(body.meta) && body.meta.length > 0
+          ? body.meta
+          : [
+              { label: "Industry", value: body.industry?.trim() || "Project" },
+              { label: "Region", value: "" },
+              {
+                label: "Year",
+                value:
+                  body.year?.trim() || new Date().getFullYear().toString(),
+              },
+              { label: "Role", value: "UX/UI Designer" },
+            ],
+      siteUrl: body.siteUrl?.trim() || undefined,
+      cover,
+      coverAlt: body.coverAlt?.trim() || `${title} cover`,
+      intro: body.intro?.trim() || undefined,
+      problem: body.problem,
+      contribution: body.contribution,
+      howItWorks: body.howItWorks,
+      outcome: body.outcome,
+      widgets: Array.isArray(body.widgets) ? body.widgets : [],
+      blocks: Array.isArray(body.blocks) ? body.blocks : [],
     };
 
-    items.push(item);
-    await saveWorkItems(items);
-    return NextResponse.json(item, { status: 201 });
+    projects.push(detail);
+    await saveProjects(projects);
+
+    const card = workItemFromProject(detail, {
+      aspect: body.aspect?.trim() || "346 / 260",
+      comingSoon: Boolean(body.comingSoon),
+      meta: body.industry?.trim(),
+      year: body.year?.trim(),
+    });
+    work.unshift(card);
+    await saveWorkItems(work);
+
+    return NextResponse.json({ work: card, detail }, { status: 201 });
   } catch (error) {
     if (error instanceof Error && error.message === "UNAUTHORIZED") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    return NextResponse.json({ error: "Failed to create project" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create project" },
+      { status: 500 },
+    );
   }
 }

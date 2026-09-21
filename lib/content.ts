@@ -3,12 +3,13 @@ import "server-only";
 import { promises as fs } from "fs";
 import path from "path";
 import { revalidatePath } from "next/cache";
-import type { CaseStudy } from "@/lib/caseStudies";
+import type { Project } from "@/lib/projects";
 import type { WorkItem } from "@/lib/work";
 
 const dataDir = path.join(process.cwd(), "data");
 const workPath = path.join(dataDir, "work.json");
-const caseStudiesPath = path.join(dataDir, "case-studies.json");
+const projectsPath = path.join(dataDir, "projects.json");
+const legacyCaseStudiesPath = path.join(dataDir, "case-studies.json");
 
 async function readJson<T>(filePath: string): Promise<T> {
   const raw = await fs.readFile(filePath, "utf8");
@@ -18,6 +19,15 @@ async function readJson<T>(filePath: string): Promise<T> {
 async function writeJson(filePath: string, data: unknown) {
   await fs.mkdir(path.dirname(filePath), { recursive: true });
   await fs.writeFile(filePath, `${JSON.stringify(data, null, 2)}\n`, "utf8");
+}
+
+async function fileExists(filePath: string) {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function slugify(value: string) {
@@ -41,70 +51,96 @@ export async function saveWorkItems(items: WorkItem[]) {
   revalidatePath("/admin/projects");
 }
 
-export async function getCaseStudies(): Promise<CaseStudy[]> {
-  return readJson<CaseStudy[]>(caseStudiesPath);
+export async function getProjects(): Promise<Project[]> {
+  if (await fileExists(projectsPath)) {
+    return readJson<Project[]>(projectsPath);
+  }
+  if (await fileExists(legacyCaseStudiesPath)) {
+    return readJson<Project[]>(legacyCaseStudiesPath);
+  }
+  return [];
 }
 
-export async function saveCaseStudies(studies: CaseStudy[]) {
-  await writeJson(caseStudiesPath, studies);
+export async function saveProjects(projects: Project[]) {
+  await writeJson(projectsPath, projects);
+  // Keep legacy file in sync during migration
+  await writeJson(legacyCaseStudiesPath, projects);
   revalidatePath("/");
   revalidatePath("/work");
   revalidatePath("/admin");
-  revalidatePath("/admin/case-studies");
-  for (const study of studies) {
-    revalidatePath(`/work/${study.slug}`);
-    revalidatePath(`/admin/case-studies/${study.slug}`);
+  revalidatePath("/admin/projects");
+  for (const project of projects) {
+    revalidatePath(`/work/${project.slug}`);
+    revalidatePath(`/admin/projects/${project.slug}`);
   }
 }
 
-export async function getCaseStudyBySlug(slug: string) {
-  const studies = await getCaseStudies();
-  return studies.find((study) => study.slug === slug) ?? null;
+export async function getProjectBySlug(slug: string) {
+  const projects = await getProjects();
+  return projects.find((project) => project.slug === slug) ?? null;
 }
 
-export async function getNextCaseStudyBySlug(slug: string) {
-  const studies = await getCaseStudies();
-  const index = studies.findIndex((study) => study.slug === slug);
-  if (index < 0 || studies.length === 0) return null;
-  return studies[(index + 1) % studies.length] ?? null;
+export async function getNextProjectBySlug(slug: string) {
+  const projects = await getProjects();
+  const index = projects.findIndex((project) => project.slug === slug);
+  if (index < 0 || projects.length === 0) return null;
+  return projects[(index + 1) % projects.length] ?? null;
 }
+
+/** @deprecated Use getProjects */
+export const getCaseStudies = getProjects;
+/** @deprecated Use getProjectBySlug */
+export const getCaseStudyBySlug = getProjectBySlug;
+/** @deprecated Use getNextProjectBySlug */
+export const getNextCaseStudyBySlug = getNextProjectBySlug;
+/** @deprecated Use saveProjects */
+export const saveCaseStudies = saveProjects;
 
 export async function getContentStats() {
-  const [work, studies] = await Promise.all([
-    getWorkItems(),
-    getCaseStudies(),
-  ]);
-  const projects = work.filter((item) => item.category === "project");
-  const caseStudyCards = work.filter((item) => item.category === "case-study");
+  const [work, projects] = await Promise.all([getWorkItems(), getProjects()]);
   const years = [...new Set(work.map((item) => item.year))].sort();
+  const withDetail = work.filter(
+    (item) => item.href && item.href.startsWith("/work/"),
+  );
 
   return {
     totalWork: work.length,
-    projects: projects.length,
-    caseStudies: studies.length,
-    caseStudyCards: caseStudyCards.length,
+    projects: work.length,
+    caseStudies: projects.length,
+    projectDetails: projects.length,
+    featured: withDetail.length,
     yearsCovered: years.length,
     latestYear: years.at(-1) ?? "—",
     recentWork: work.slice(0, 5),
   };
 }
 
-export function workItemFromCaseStudy(study: CaseStudy): WorkItem {
+export function workItemFromProject(
+  project: Project,
+  extras?: Partial<WorkItem>,
+): WorkItem {
   const industry =
-    study.meta.find((item) => item.label.toLowerCase() === "industry")
-      ?.value ?? "Case Study";
+    project.meta.find((item) => item.label.toLowerCase() === "industry")
+      ?.value ??
+    extras?.meta ??
+    "Project";
   const year =
-    study.meta.find((item) => item.label.toLowerCase() === "year")?.value ??
+    project.meta.find((item) => item.label.toLowerCase() === "year")?.value ??
+    extras?.year ??
     new Date().getFullYear().toString();
 
   return {
-    id: study.slug,
-    name: study.title,
+    id: project.slug,
+    name: project.title,
     meta: industry,
     year,
-    image: study.cover,
-    category: "case-study",
-    aspect: "346 / 260",
-    href: `/work/${study.slug}`,
+    image: project.cover,
+    category: "project",
+    aspect: extras?.aspect ?? "346 / 260",
+    href: `/work/${project.slug}`,
+    comingSoon: extras?.comingSoon,
   };
 }
+
+/** @deprecated Use workItemFromProject */
+export const workItemFromCaseStudy = workItemFromProject;

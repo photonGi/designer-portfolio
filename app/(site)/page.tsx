@@ -5,30 +5,30 @@ import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 import OtherProjects from "@/components/OtherProjects";
 import Showreel from "@/components/Showreel";
-import { getCaseStudies, getWorkItems } from "@/lib/content";
+import { getProjects, getWorkItems } from "@/lib/content";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [workItems, caseStudies] = await Promise.all([
+  const [workItems, projects] = await Promise.all([
     getWorkItems(),
-    getCaseStudies(),
+    getProjects(),
   ]);
 
-  const featuredStudies = caseStudies.map((study) => {
-    const card = workItems.find((item) => item.id === study.slug);
+  const featuredProjects = projects.map((project) => {
+    const card = workItems.find((item) => item.id === project.slug);
     return {
-      name: study.title,
+      name: project.title,
       type:
-        study.meta.find((m) => m.label.toLowerCase() === "industry")?.value ??
+        project.meta.find((m) => m.label.toLowerCase() === "industry")?.value ??
         card?.meta ??
-        "Case Study",
+        "Project",
       year:
-        study.meta.find((m) => m.label.toLowerCase() === "year")?.value ??
+        project.meta.find((m) => m.label.toLowerCase() === "year")?.value ??
         card?.year ??
         "",
-      href: `/work/${study.slug}`,
-      image: study.cover,
+      href: `/work/${project.slug}`,
+      image: project.cover,
       comingSoon: card?.comingSoon,
     };
   });
@@ -38,7 +38,7 @@ export default async function Home() {
       <Hero />
       <Showreel />
       <Clients />
-      <CaseStudies studies={featuredStudies} />
+      <CaseStudies studies={featuredProjects} />
       <OtherProjects items={workItems} />
       <About />
       <Footer workItems={workItems} />

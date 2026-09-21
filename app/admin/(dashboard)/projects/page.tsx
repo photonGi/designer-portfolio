@@ -1,13 +1,20 @@
 import Link from "next/link";
-import { getWorkItems } from "@/lib/content";
+import { getProjects, getWorkItems } from "@/lib/content";
 import DeleteProjectButton from "@/components/admin/DeleteProjectButton";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminProjectsPage() {
-  const projects = (await getWorkItems()).filter(
-    (item) => item.category === "project",
-  );
+  const [workItems, details] = await Promise.all([
+    getWorkItems(),
+    getProjects(),
+  ]);
+
+  const detailSlugs = new Set(details.map((project) => project.slug));
+  const projects = workItems.map((item) => ({
+    ...item,
+    hasDetail: detailSlugs.has(item.id),
+  }));
 
   return (
     <div className="space-y-6">
@@ -15,7 +22,8 @@ export default async function AdminProjectsPage() {
         <div>
           <h2 className="text-2xl font-medium text-foreground">Projects</h2>
           <p className="mt-1 text-sm text-muted">
-            {projects.length} project{projects.length === 1 ? "" : "s"}
+            {projects.length} project{projects.length === 1 ? "" : "s"} ·{" "}
+            {details.length} with detail pages
           </p>
         </div>
         <Link
@@ -33,6 +41,7 @@ export default async function AdminProjectsPage() {
               <th className="px-4 py-3 font-medium">Project</th>
               <th className="px-4 py-3 font-medium">Tag</th>
               <th className="px-4 py-3 font-medium">Year</th>
+              <th className="px-4 py-3 font-medium">Detail</th>
               <th className="px-4 py-3 font-medium text-right">Actions</th>
             </tr>
           </thead>
@@ -52,6 +61,19 @@ export default async function AdminProjectsPage() {
                 </td>
                 <td className="px-4 py-3 text-muted">{project.meta}</td>
                 <td className="px-4 py-3 text-muted">{project.year}</td>
+                <td className="px-4 py-3 text-muted">
+                  {project.hasDetail ? (
+                    <Link
+                      href={`/work/${project.id}`}
+                      className="hover:text-foreground"
+                      target="_blank"
+                    >
+                      /work/{project.id}
+                    </Link>
+                  ) : (
+                    "—"
+                  )}
+                </td>
                 <td className="px-4 py-3">
                   <div className="flex justify-end gap-3">
                     <Link
@@ -68,7 +90,7 @@ export default async function AdminProjectsPage() {
             {projects.length === 0 ? (
               <tr>
                 <td
-                  colSpan={4}
+                  colSpan={5}
                   className="px-4 py-8 text-center text-sm text-muted"
                 >
                   No projects yet.

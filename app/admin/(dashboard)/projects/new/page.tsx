@@ -6,7 +6,8 @@ export default function NewProjectPage() {
       <div>
         <h2 className="text-2xl font-medium text-foreground">Add project</h2>
         <p className="mt-1 text-sm text-muted">
-          Appears in Work and Other Projects sections.
+          Build the detail page with reusable widgets — paragraphs, images,
+          sliders, points, bullets, metrics, and galleries.
         </p>
       </div>
       <ProjectForm mode="create" />

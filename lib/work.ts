@@ -14,10 +14,15 @@ export type WorkItem = {
 
 export function filterWorkItems(
   items: WorkItem[],
-  filter: "all" | "case-studies",
+  filter: "all" | "case-studies" | "featured",
 ) {
   if (filter === "case-studies") {
     return items.filter((item) => item.category === "case-study");
+  }
+  if (filter === "featured") {
+    return items.filter((item) =>
+      Boolean(item.href && item.href.startsWith("/work/")),
+    );
   }
   return items;
 }

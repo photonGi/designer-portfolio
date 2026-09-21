@@ -9,7 +9,7 @@ export default async function AdminDashboardPage() {
   const cards = [
     { label: "Total work", value: stats.totalWork },
     { label: "Projects", value: stats.projects },
-    { label: "Case studies", value: stats.caseStudies },
+    { label: "Detail pages", value: stats.projectDetails },
     { label: "Years covered", value: stats.yearsCovered },
   ];
 
@@ -22,20 +22,12 @@ export default async function AdminDashboardPage() {
             Overview of portfolio content. Latest year: {stats.latestYear}
           </p>
         </div>
-        <div className="flex gap-2">
-          <Link
-            href="/admin/projects/new"
-            className="rounded bg-white px-3 py-2 text-xs font-medium text-[#181411]"
-          >
-            Add project
-          </Link>
-          <Link
-            href="/admin/case-studies/new"
-            className="rounded border border-[#2f2a24] px-3 py-2 text-xs text-[#87817a] hover:text-white"
-          >
-            Add case study
-          </Link>
-        </div>
+        <Link
+          href="/admin/projects/new"
+          className="rounded bg-white px-3 py-2 text-xs font-medium text-[#181411]"
+        >
+          Add project
+        </Link>
       </div>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">

@@ -89,7 +89,7 @@ export default function CaseStudyView({
             </motion.div>
 
             <div className="mt-2 flex flex-col gap-2">
-              {study.blocks.map((block, index) => {
+              {(study.blocks ?? []).map((block, index) => {
                 if (block.type === "image") {
                   return (
                     <motion.div

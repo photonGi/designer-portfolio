@@ -146,7 +146,7 @@ export default function CaseStudies({
           viewport={{ once: true, amount: 0.4 }}
           transition={{ duration: 0.75, ease }}
         >
-          <p className="text-sm text-muted">Case Studies</p>
+          <p className="text-sm text-muted">Selected Work</p>
           <h2 className="mt-2 text-[clamp(1.5rem,3vw,2.125rem)] font-normal leading-tight text-foreground">
             Digital products design process, from white boarding to actually
             working experience.
@@ -155,7 +155,7 @@ export default function CaseStudies({
 
         <div
           className="relative w-full"
-          aria-label="Selected case studies"
+          aria-label="Selected projects"
           onPointerMove={
             canHover
               ? (event) => {

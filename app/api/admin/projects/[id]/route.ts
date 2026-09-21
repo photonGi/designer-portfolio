@@ -1,22 +1,39 @@
 import { NextResponse } from "next/server";
-import { getWorkItems, saveWorkItems } from "@/lib/content";
+import {
+  getProjects,
+  getWorkItems,
+  saveProjects,
+  saveWorkItems,
+  workItemFromProject,
+} from "@/lib/content";
 import { requireAdmin } from "@/lib/admin/auth";
-import type { WorkItem } from "@/lib/work";
+import type { Project } from "@/lib/projects";
 
 type Params = { params: Promise<{ id: string }> };
+
+type ProjectPayload = Partial<Project> & {
+  name?: string;
+  image?: string;
+  industry?: string;
+  year?: string;
+  aspect?: string;
+  comingSoon?: boolean;
+};
 
 export async function GET(_request: Request, { params }: Params) {
   try {
     await requireAdmin();
     const { id } = await params;
-    const items = await getWorkItems();
-    const item = items.find(
-      (entry) => entry.id === id && entry.category === "project",
-    );
-    if (!item) {
+    const [work, projects] = await Promise.all([
+      getWorkItems(),
+      getProjects(),
+    ]);
+    const item = work.find((entry) => entry.id === id) ?? null;
+    const detail = projects.find((entry) => entry.slug === id) ?? null;
+    if (!item && !detail) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
-    return NextResponse.json(item);
+    return NextResponse.json({ work: item, detail });
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -26,39 +43,129 @@ export async function PUT(request: Request, { params }: Params) {
   try {
     await requireAdmin();
     const { id } = await params;
-    const body = (await request.json()) as Partial<WorkItem>;
-    const items = await getWorkItems();
-    const index = items.findIndex(
-      (entry) => entry.id === id && entry.category === "project",
-    );
-    if (index < 0) {
+    const body = (await request.json()) as ProjectPayload;
+    const [work, projects] = await Promise.all([
+      getWorkItems(),
+      getProjects(),
+    ]);
+
+    const workIndex = work.findIndex((entry) => entry.id === id);
+    const detailIndex = projects.findIndex((entry) => entry.slug === id);
+
+    if (workIndex < 0 && detailIndex < 0) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    const current = items[index]!;
-    const updated: WorkItem = {
-      ...current,
-      name: body.name?.trim() || current.name,
-      meta: body.meta?.trim() || current.meta,
-      year: body.year?.trim() || current.year,
-      image: body.image?.trim() || current.image,
-      aspect: body.aspect?.trim() || current.aspect,
-      href: body.href?.trim() || current.href,
-      comingSoon:
-        body.comingSoon === undefined
-          ? current.comingSoon
-          : Boolean(body.comingSoon),
-      category: "project",
+    const currentDetail = detailIndex >= 0 ? projects[detailIndex]! : null;
+    const title =
+      body.title?.trim() ||
+      body.name?.trim() ||
+      currentDetail?.title ||
+      work[workIndex]?.name ||
+      id;
+    const cover =
+      body.cover?.trim() ||
+      body.image?.trim() ||
+      currentDetail?.cover ||
+      work[workIndex]?.image ||
+      "";
+    const summary =
+      body.summary?.trim() || currentDetail?.summary || "";
+
+    if (!title || !cover || !summary) {
+      return NextResponse.json(
+        { error: "Title, summary, and cover are required" },
+        { status: 400 },
+      );
+    }
+
+    const updatedDetail: Project = {
+      slug: id,
+      title,
+      summary,
+      meta: Array.isArray(body.meta)
+        ? body.meta
+        : currentDetail?.meta ?? [
+            { label: "Industry", value: body.industry?.trim() || "Project" },
+            { label: "Region", value: "" },
+            {
+              label: "Year",
+              value:
+                body.year?.trim() ||
+                work[workIndex]?.year ||
+                new Date().getFullYear().toString(),
+            },
+            { label: "Role", value: "UX/UI Designer" },
+          ],
+      siteUrl:
+        body.siteUrl === undefined
+          ? currentDetail?.siteUrl
+          : body.siteUrl.trim() || undefined,
+      cover,
+      coverAlt:
+        body.coverAlt?.trim() ||
+        currentDetail?.coverAlt ||
+        `${title} cover`,
+      intro:
+        body.intro === undefined
+          ? currentDetail?.intro
+          : body.intro.trim() || undefined,
+      problem:
+        body.problem === undefined ? currentDetail?.problem : body.problem,
+      contribution:
+        body.contribution === undefined
+          ? currentDetail?.contribution
+          : body.contribution,
+      howItWorks:
+        body.howItWorks === undefined
+          ? currentDetail?.howItWorks
+          : body.howItWorks,
+      outcome:
+        body.outcome === undefined ? currentDetail?.outcome : body.outcome,
+      widgets: Array.isArray(body.widgets)
+        ? body.widgets
+        : currentDetail?.widgets ?? [],
+      blocks: Array.isArray(body.blocks)
+        ? body.blocks
+        : currentDetail?.blocks ?? [],
     };
 
-    items[index] = updated;
-    await saveWorkItems(items);
-    return NextResponse.json(updated);
+    if (detailIndex >= 0) {
+      projects[detailIndex] = updatedDetail;
+    } else {
+      projects.push(updatedDetail);
+    }
+    await saveProjects(projects);
+
+    const card = workItemFromProject(updatedDetail, {
+      aspect:
+        body.aspect?.trim() ||
+        work[workIndex]?.aspect ||
+        "346 / 260",
+      comingSoon:
+        body.comingSoon === undefined
+          ? work[workIndex]?.comingSoon
+          : Boolean(body.comingSoon),
+      meta: body.industry?.trim(),
+      year: body.year?.trim(),
+    });
+
+    if (workIndex >= 0) {
+      work[workIndex] = { ...work[workIndex], ...card, id };
+    } else {
+      work.unshift(card);
+    }
+    await saveWorkItems(work);
+
+    return NextResponse.json({ work: card, detail: updatedDetail });
   } catch (error) {
     if (error instanceof Error && error.message === "UNAUTHORIZED") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    return NextResponse.json({ error: "Failed to update project" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update project" },
+      { status: 500 },
+    );
   }
 }
 
@@ -66,14 +173,25 @@ export async function DELETE(_request: Request, { params }: Params) {
   try {
     await requireAdmin();
     const { id } = await params;
-    const items = await getWorkItems();
-    const next = items.filter(
-      (entry) => !(entry.id === id && entry.category === "project"),
-    );
-    if (next.length === items.length) {
+    const [work, projects] = await Promise.all([
+      getWorkItems(),
+      getProjects(),
+    ]);
+
+    const nextWork = work.filter((entry) => entry.id !== id);
+    const nextProjects = projects.filter((entry) => entry.slug !== id);
+
+    if (
+      nextWork.length === work.length &&
+      nextProjects.length === projects.length
+    ) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
-    await saveWorkItems(next);
+
+    await Promise.all([
+      saveWorkItems(nextWork),
+      saveProjects(nextProjects),
+    ]);
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
