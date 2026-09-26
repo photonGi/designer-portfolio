@@ -4,13 +4,25 @@
     "title": "Options Depth",
     "summary": "Simplifying trading for all, innovating strategy empowers users to earn like seasoned professionals.",
     "meta": [
-      { "label": "Industry", "value": "Trading" },
-      { "label": "Region", "value": "USA" },
-      { "label": "Year", "value": "2025" },
-      { "label": "Role", "value": "UX/UI Designer" }
+      {
+        "label": "Industry",
+        "value": "Trading"
+      },
+      {
+        "label": "Region",
+        "value": "USA"
+      },
+      {
+        "label": "Year",
+        "value": "2025"
+      },
+      {
+        "label": "Role",
+        "value": "UX/UI Designer"
+      }
     ],
     "siteUrl": "https://optionsdepth.com",
-    "cover": "/images/case-studies/case-study1.png",
+    "cover": "/uploads/1790409146377-83a26330.jpg",
     "coverAlt": "Options Depth trading dashboard on a laptop",
     "widgets": [
       {
@@ -126,9 +138,18 @@
         "title": "Outcome",
         "number": 4,
         "items": [
-          { "value": "5,000+", "label": "Traders community" },
-          { "value": "255 million+", "label": "Data points decoded daily" },
-          { "value": "255 million+", "label": "Data points decoded daily" }
+          {
+            "value": "5,000+",
+            "label": "Traders community"
+          },
+          {
+            "value": "255 million+",
+            "label": "Data points decoded daily"
+          },
+          {
+            "value": "255 million+",
+            "label": "Data points decoded daily"
+          }
         ]
       },
       {
@@ -162,16 +183,26 @@
           }
         ]
       }
-    ]
+    ],
+    "blocks": []
   },
   {
     "slug": "prosper-architecture",
     "title": "Prosper Architecture",
     "summary": "A refined digital presence for an architecture studio—designed to present projects with clarity, hierarchy, and a calm editorial rhythm.",
     "meta": [
-      { "label": "Industry", "value": "Architecture" },
-      { "label": "Year", "value": "2026" },
-      { "label": "Role", "value": "UX/UI Designer" }
+      {
+        "label": "Industry",
+        "value": "Architecture"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "Role",
+        "value": "UX/UI Designer"
+      }
     ],
     "cover": "/images/case-studies/case-study2.png",
     "coverAlt": "Prosper Architecture website on a laptop",
@@ -233,9 +264,18 @@
     "title": "The Dot Theory",
     "summary": "A calm healthcare and wellness portal that helps members navigate treatments, memberships, and upcoming appointments with confidence.",
     "meta": [
-      { "label": "Industry", "value": "Healthcare & Wellness" },
-      { "label": "Year", "value": "2025" },
-      { "label": "Role", "value": "UI/UX Designer" }
+      {
+        "label": "Industry",
+        "value": "Healthcare & Wellness"
+      },
+      {
+        "label": "Year",
+        "value": "2025"
+      },
+      {
+        "label": "Role",
+        "value": "UI/UX Designer"
+      }
     ],
     "cover": "/images/case-studies/case-study3.png",
     "coverAlt": "Dot Portal wellness dashboard on a laptop",
@@ -328,5 +368,45 @@
         ]
       }
     ]
+  },
+  {
+    "slug": "test",
+    "title": "Test",
+    "summary": "jsjsj",
+    "meta": [
+      {
+        "label": "Industry",
+        "value": "IT"
+      },
+      {
+        "label": "Region",
+        "value": "UK"
+      },
+      {
+        "label": "Year",
+        "value": "2026"
+      },
+      {
+        "label": "Role",
+        "value": "UX/UI Designer"
+      }
+    ],
+    "siteUrl": "http://google.com/",
+    "cover": "/uploads/1790357400668-3a7f927b.jpg",
+    "coverAlt": "Test cover",
+    "widgets": [
+      {
+        "id": "w_hm30pdgc",
+        "type": "heading",
+        "title": "Testttt"
+      },
+      {
+        "id": "w_i4x49t9k",
+        "type": "image",
+        "src": "/uploads/1790357425194-f17be6b2.jpg",
+        "alt": ""
+      }
+    ],
+    "blocks": []
   }
 ]

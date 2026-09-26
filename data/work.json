@@ -1,9 +1,20 @@
 [
   {
+    "id": "test",
+    "name": "Test",
+    "meta": "IT",
+    "year": "2026",
+    "image": "/uploads/1790357400668-3a7f927b.jpg",
+    "category": "project",
+    "aspect": "346 / 260",
+    "href": "/work/test",
+    "comingSoon": false
+  },
+  {
     "id": "wellme",
     "name": "WellMe",
-    "meta": "Healthcare & Wellness",
-    "year": "2024",
+    "meta": "Wellness",
+    "year": "2025",
     "image": "/images/wellme/Frame 2085668825.png",
     "category": "case-study",
     "aspect": "346 / 260",
@@ -14,10 +25,11 @@
     "name": "Options Depth",
     "meta": "Trading",
     "year": "2025",
-    "image": "/images/case-studies/case-study1.png",
+    "image": "/uploads/1790409146377-83a26330.jpg",
     "category": "project",
     "aspect": "346 / 260",
-    "href": "/work/options-depth"
+    "href": "/work/options-depth",
+    "comingSoon": false
   },
   {
     "id": "prosper-architecture",

@@ -16,17 +16,17 @@ export const staticCaseStudies: StaticCaseStudy[] = [
     slug: "wellme",
     title: "Wellme",
     summary:
-      "An AI well-being coach for people who don't have anyone to talk to.",
+      "An AI wellbeing coach for people who can't be seen asking for help.",
     meta: [
-      { label: "Client", value: "Personal" },
-      { label: "Year", value: "2024" },
-      { label: "Role", value: "UI/UX Designer" },
+      { label: "Industry", value: "Wellness" },
+      { label: "Year", value: "2025" },
+      { label: "Role", value: "Product Designer" },
     ],
     cover: "/images/wellme/Frame 2085668825.png",
     coverAlt: "Wellme home screen on a phone",
     listingImage: "/images/wellme/Frame 2085668825.png",
-    industry: "Healthcare & Wellness",
-    year: "2024",
+    industry: "Wellness",
+    year: "2025",
   },
 ];
 
