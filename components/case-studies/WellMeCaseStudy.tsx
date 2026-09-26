@@ -46,26 +46,32 @@ const competitiveRows = [
   {
     product: "Calm / Headspace",
     values: ["Yes", "Yes", "No", "No", "User"],
+    highlight: false,
   },
   {
     product: "Woebot",
     values: ["Yes", "Yes", "No", "No", "User"],
+    highlight: false,
   },
   {
     product: "Wysa",
     values: ["Depends", "Yes", "No", "Yes", "Use or Emp"],
+    highlight: false,
   },
   {
     product: "Responder-specific tools",
     values: ["No", "Yes", "Partly", "Yes", "Department"],
+    highlight: false,
   },
   {
     product: "Employer EAP",
     values: ["No", "No", "No", "Yes", "Department"],
+    highlight: false,
   },
   {
     product: "Wellme",
     values: ["Yes", "Yes", "Yes", "Yes", "User"],
+    highlight: true,
   },
 ] as const;
 
